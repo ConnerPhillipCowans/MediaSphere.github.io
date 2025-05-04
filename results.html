@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Results</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <style>
+    .favorite-btn.favorited {
+      color: red;
+      font-weight: bold;
+      transform: scale(1.1);
+      transition: transform 0.3s, color 0.3s;
+    }
+  </style>
+</head>
+<body class="bg-dark text-white">
+  <div class="container mt-5">
+    <h2 id="topicHeader" class="mb-4"></h2>
+    <div class="mb-4 d-flex justify-content-between">
+      <a href="profile.html" class="btn btn-outline-light btn-sm">← Back to Feed</a>
+      <a href="favorites.html" class="btn btn-outline-info btn-sm">❤️ View Favorites</a>
+      <button id="logoutBtn" class="btn btn-outline-danger btn-sm">🚪 Logout</button>
+    </div>
+
+    <div id="youtubeResults" class="mt-4"></div>
+    <div class="text-center mb-5">
+      <button id="loadMoreYoutube" class="btn btn-outline-light btn-sm">Load More YouTube</button>
+    </div>
+
+    <div id="gnewsResults" class="mt-4"></div>
+    <div class="text-center mb-5">
+      <button id="loadMoreNews" class="btn btn-outline-light btn-sm">Load More News</button>
+    </div>
+
+    <div id="spotifyResults" class="mt-5"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBD3g5FglsplK08sQD7CZRpytRQIkugQ_8",
+      authDomain: "soundshow-5d474.firebaseapp.com",
+      projectId: "soundshow-5d474",
+      storageBucket: "soundshow-5d474.firebasestorage.app",
+      messagingSenderId: "724444623865",
+      appId: "1:724444623865:web:41cbc14a12fd6a4faac328"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const userId = localStorage.getItem("userId");
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      localStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    const query = new URLSearchParams(window.location.search).get('query');
+    const normalizedQuery = query.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+
+    const YOUTUBE_API_KEY = "AIzaSyDeYmFdXh8MupF0islOyKYcpjaxFHdOtnQ";
+    const GNEWS_API_KEY = "65098b8a019c06fc725d765eccca7594";
+    const SPOTIFY_CLIENT_ID = "472db3710d084b36926341acefd1311e";
+    const SPOTIFY_CLIENT_SECRET = "8dd4c8534b69424681c137b8af0dd2cb";
+
+    let youtubePage = 0;
+    let newsPage = 0;
+
+    async function saveFavorite(type, content, button) {
+      if (!userId || !button) return;
+      const exists = await db.collection("users").doc(userId).collection("favorites")
+        .where("type", "==", type).where("content", "==", content).get();
+      if (!exists.empty) {
+        alert("Already favorited!");
+        return;
+      }
+      await db.collection("users").doc(userId).collection("favorites").add({ type, content });
+      button.classList.add("favorited");
+      button.textContent = "❤️ Favorited";
+    }
+
+    async function getSpotifyAccessToken() {
+      const res = await fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + btoa(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET),
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'grant_type=client_credentials'
+      });
+      const data = await res.json();
+      return data.access_token;
+    }
+
+    async function fetchSpotifyTracks(query, token) {
+      const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=1`, {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const data = await res.json();
+      const artist = data.artists.items[0];
+
+      if (!artist) return [];
+
+      const tracksRes = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`, {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const tracks = await tracksRes.json();
+      return tracks.tracks;
+    }
+
+    async function fetchYouTube(query, page = 0) {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=${encodeURIComponent(query)}&pageToken=${page}&key=${YOUTUBE_API_KEY}`);
+      const data = await res.json();
+      return data.items;
+    }
+
+    async function fetchNews(query, page = 0) {
+      const res = await fetch(`https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=5&apikey=${GNEWS_API_KEY}`);
+      const data = await res.json();
+      return data.articles || [];
+    }
+
+    function displaySpotify(tracks) {
+      const container = document.getElementById('spotifyResults');
+      container.innerHTML = '<h4>Spotify Tracks</h4>';
+
+      if (!tracks || tracks.length === 0) {
+        container.innerHTML += "<p>No Spotify tracks found.</p>";
+        return;
+      }
+
+      tracks.forEach(track => {
+        const item = document.createElement("div");
+        item.classList.add("mb-3");
+        const content = track.name + ' - ' + track.artists.map(a => a.name).join(", ");
+        item.innerHTML = `
+          <p><strong>${track.name}</strong> by ${track.artists.map(a => a.name).join(", ")}</p>
+          ${track.preview_url
+            ? `<audio controls src="${track.preview_url}"></audio>`
+            : `<iframe src="https://open.spotify.com/embed/track/${track.id}" width="100%" height="80" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>`
+          }
+          <a href="${track.external_urls.spotify}" target="_blank" class="d-block text-info mt-1">Open on Spotify</a>
+          <button class="btn btn-outline-light btn-sm mt-2 favorite-btn" onclick='saveFavorite("spotify", ${JSON.stringify(content)}, this)'>❤️ Favorite</button>
+          <hr>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function displayYouTube(videos) {
+      const container = document.getElementById('youtubeResults');
+      videos.forEach(video => {
+        const div = document.createElement("div");
+        div.classList.add("mb-3");
+        const videoId = video.id.videoId;
+        div.innerHTML = `
+          <h6>${video.snippet.title}</h6>
+          <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+          <button class="btn btn-outline-light btn-sm mt-2 favorite-btn" onclick='saveFavorite("youtube", "${videoId}", this)'>❤️ Favorite</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function displayNews(articles) {
+      const container = document.getElementById('gnewsResults');
+      if (!articles || articles.length === 0) {
+        container.innerHTML += "<p>No news articles found.</p>";
+        return;
+      }
+      articles.forEach(article => {
+        const card = document.createElement("div");
+        card.className = "card bg-dark text-white mb-3";
+        card.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title">${article.title}</h5>
+            <p class="card-text">${article.description || ""}</p>
+            <a href="${article.url}" class="btn btn-light btn-sm" target="_blank">Read more</a>
+            <button class="btn btn-outline-light btn-sm mt-2 favorite-btn" onclick='saveFavorite("news", ${JSON.stringify(article)}, this)'>❤️ Favorite</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function runSearch() {
+      if (!query) return;
+      document.getElementById("topicHeader").textContent = `Results for "${decodeURIComponent(query)}"`;
+
+      try {
+        const token = await getSpotifyAccessToken();
+        const [spotifyTracks, youtubeVideos, newsArticles] = await Promise.all([
+          fetchSpotifyTracks(normalizedQuery, token),
+          fetchYouTube(normalizedQuery, youtubePage),
+          fetchNews(normalizedQuery, newsPage)
+        ]);
+
+        displaySpotify(spotifyTracks);
+        displayYouTube(youtubeVideos);
+        displayNews(newsArticles);
+      } catch (error) {
+        console.error("Search error:", error);
+      }
+    }
+
+    document.getElementById("loadMoreYoutube").addEventListener("click", async () => {
+      youtubePage++;
+      const videos = await fetchYouTube(normalizedQuery, youtubePage);
+      displayYouTube(videos);
+    });
+
+    document.getElementById("loadMoreNews").addEventListener("click", async () => {
+      newsPage++;
+      const news = await fetchNews(normalizedQuery, newsPage);
+      displayNews(news);
+    });
+
+    runSearch();
+  </script>
+</body>
+</html>

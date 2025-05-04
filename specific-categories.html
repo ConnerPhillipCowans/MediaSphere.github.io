@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Specific Categories</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 40px;
+    }
+
+    .category-group {
+      margin-bottom: 40px;
+    }
+
+    .category-title {
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-decoration: underline;
+    }
+
+    .pill-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .pill {
+      border: 2px solid white;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: transparent;
+      color: white;
+    }
+
+    .pill input {
+      transform: scale(1.3);
+      accent-color: white;
+    }
+
+    .btn-submit {
+      padding: 10px 30px;
+      font-size: 18px;
+      border: 2px solid white;
+      border-radius: 20px;
+      background-color: transparent;
+      color: white;
+    }
+
+    .btn-submit:hover {
+      background-color: white;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Based On The Categories You Selected, Here Are Some More Specific Content</h2>
+
+  <form id="subcategories-form">
+    <!-- All category groups (with data-category attributes) go here -->
+    
+    <div class="category-group" data-category="Art">
+      <div class="category-title">Art</div>
+      <div class="pill-container">
+        <label class="pill"><input type="checkbox" value="Street Art" /> Street Art</label>
+        <label class="pill"><input type="checkbox" value="Famous Paintings" /> Famous Paintings</label>
+        <label class="pill"><input type="checkbox" value="Famous Artists" /> Famous Artists</label>
+        <label class="pill"><input type="checkbox" value="Art Shows" /> Art Shows</label>
+        <label class="pill"><input type="checkbox" value="Art Auctions" /> Art Auctions</label>
+        <label class="pill"><input type="checkbox" value="Art Forgeries" /> Art Forgeries</label>
+      </div>
+    </div>
+
+    <div class="category-group" data-category="Music Genres">
+  <div class="category-title">Music Genres</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Hip Hop" /> Hip Hop</label>
+    <label class="pill"><input type="checkbox" value="Rock" /> Rock</label>
+    <label class="pill"><input type="checkbox" value="Pop" /> Pop</label>
+    <label class="pill"><input type="checkbox" value="Jazz" /> Jazz</label>
+    <label class="pill"><input type="checkbox" value="Blues" /> Blues</label>
+    <label class="pill"><input type="checkbox" value="Country" /> Country</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Technology">
+  <div class="category-title">Technology</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="AI" /> AI</label>
+    <label class="pill"><input type="checkbox" value="VR" /> VR</label>
+    <label class="pill"><input type="checkbox" value="Smartphones" /> Smartphones</label>
+    <label class="pill"><input type="checkbox" value="Laptops" /> Laptops</label>
+    <label class="pill"><input type="checkbox" value="Robotics" /> Robotics</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Movies">
+  <div class="category-title">Movies</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Comedy" /> Comedy</label>
+    <label class="pill"><input type="checkbox" value="Horror" /> Horror</label>
+    <label class="pill"><input type="checkbox" value="Sci-Fi" /> Sci-Fi</label>
+    <label class="pill"><input type="checkbox" value="Drama" /> Drama</label>
+    <label class="pill"><input type="checkbox" value="Documentary" /> Documentary</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Food">
+  <div class="category-title">Food</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Recipes" /> Recipes</label>
+    <label class="pill"><input type="checkbox" value="Vegan" /> Vegan</label>
+    <label class="pill"><input type="checkbox" value="Fast Food" /> Fast Food</label>
+    <label class="pill"><input type="checkbox" value="Cultural Cuisine" /> Cultural Cuisine</label>
+    <label class="pill"><input type="checkbox" value="Desserts" /> Desserts</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Health">
+  <div class="category-title">Health</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Fitness" /> Fitness</label>
+    <label class="pill"><input type="checkbox" value="Mental Health" /> Mental Health</label>
+    <label class="pill"><input type="checkbox" value="Nutrition" /> Nutrition</label>
+    <label class="pill"><input type="checkbox" value="Wellness" /> Wellness</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Sports">
+  <div class="category-title">Sports</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Football" /> Football</label>
+    <label class="pill"><input type="checkbox" value="Basketball" /> Basketball</label>
+    <label class="pill"><input type="checkbox" value="Soccer" /> Soccer</label>
+    <label class="pill"><input type="checkbox" value="Tennis" /> Tennis</label>
+    <label class="pill"><input type="checkbox" value="Baseball" /> Baseball</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Science">
+  <div class="category-title">Science</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Astronomy" /> Astronomy</label>
+    <label class="pill"><input type="checkbox" value="Physics" /> Physics</label>
+    <label class="pill"><input type="checkbox" value="Biology" /> Biology</label>
+    <label class="pill"><input type="checkbox" value="Chemistry" /> Chemistry</label>
+    <label class="pill"><input type="checkbox" value="Psychology" /> Psychology</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Economics">
+  <div class="category-title">Economics</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Finance" /> Finance</label>
+    <label class="pill"><input type="checkbox" value="Trade" /> Trade</label>
+    <label class="pill"><input type="checkbox" value="Microeconomics" /> Microeconomics</label>
+    <label class="pill"><input type="checkbox" value="Macroeconomics" /> Macroeconomics</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="News">
+  <div class="category-title">News</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Politics" /> Politics</label>
+    <label class="pill"><input type="checkbox" value="World News" /> World News</label>
+    <label class="pill"><input type="checkbox" value="Local News" /> Local News</label>
+    <label class="pill"><input type="checkbox" value="Breaking News" /> Breaking News</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Religion">
+  <div class="category-title">Religion</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Christianity" /> Christianity</label>
+    <label class="pill"><input type="checkbox" value="Islam" /> Islam</label>
+    <label class="pill"><input type="checkbox" value="Buddhism" /> Buddhism</label>
+    <label class="pill"><input type="checkbox" value="Hinduism" /> Hinduism</label>
+    <label class="pill"><input type="checkbox" value="Spirituality" /> Spirituality</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Pets">
+  <div class="category-title">Pets</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Dogs" /> Dogs</label>
+    <label class="pill"><input type="checkbox" value="Cats" /> Cats</label>
+    <label class="pill"><input type="checkbox" value="Birds" /> Birds</label>
+    <label class="pill"><input type="checkbox" value="Reptiles" /> Reptiles</label>
+    <label class="pill"><input type="checkbox" value="Pet Health" /> Pet Health</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Literature">
+  <div class="category-title">Literature</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Fiction" /> Fiction</label>
+    <label class="pill"><input type="checkbox" value="Non-fiction" /> Non-fiction</label>
+    <label class="pill"><input type="checkbox" value="Poetry" /> Poetry</label>
+    <label class="pill"><input type="checkbox" value="Fantasy" /> Fantasy</label>
+    <label class="pill"><input type="checkbox" value="Mystery" /> Mystery</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Travel">
+  <div class="category-title">Travel</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Adventure" /> Adventure</label>
+    <label class="pill"><input type="checkbox" value="Luxury" /> Luxury</label>
+    <label class="pill"><input type="checkbox" value="Backpacking" /> Backpacking</label>
+    <label class="pill"><input type="checkbox" value="Cultural Travel" /> Cultural Travel</label>
+    <label class="pill"><input type="checkbox" value="Road Trips" /> Road Trips</label>
+  </div>
+</div>
+
+<div class="category-group" data-category="Games">
+  <div class="category-title">Games</div>
+  <div class="pill-container">
+    <label class="pill"><input type="checkbox" value="Console" /> Console</label>
+    <label class="pill"><input type="checkbox" value="PC" /> PC</label>
+    <label class="pill"><input type="checkbox" value="Mobile" /> Mobile</label>
+    <label class="pill"><input type="checkbox" value="Indie" /> Indie</label>
+    <label class="pill"><input type="checkbox" value="Multiplayer" /> Multiplayer</label>
+  </div>
+</div>
+
+    <button type="submit" class="btn btn-submit">Finish</button>
+  </form>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBD3g5FglsplK08sQD7CZRpytRQIkugQ_8",
+      authDomain: "soundshow-5d474.firebaseapp.com",
+      projectId: "soundshow-5d474",
+      storageBucket: "soundshow-5d474.firebasestorage.app",
+      messagingSenderId: "724444623865",
+      appId: "1:724444623865:web:41cbc14a12fd6a4faac328",
+      measurementId: "G-V9L5LL6F66"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const userId = localStorage.getItem("userId");
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const selectedCategories = JSON.parse(localStorage.getItem("categories")) || [];
+      const allGroups = document.querySelectorAll(".category-group");
+
+      allGroups.forEach(group => {
+        const category = group.getAttribute("data-category");
+        if (!selectedCategories.includes(category)) {
+          group.style.display = "none";
+        }
+      });
+    });
+
+    document.getElementById("subcategories-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const selected = [];
+      const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+      checkboxes.forEach((box) => selected.push(box.value));
+
+      try {
+        if (!userId) {
+          alert("No user found. Please log in again.");
+          return;
+        }
+
+        await db.collection("users").doc(userId).update({
+          subcategories: selected
+        });
+
+        alert("Your preferences were saved!");
+        window.location.href = "profile.html";
+      } catch (err) {
+        console.error("Error saving subcategories:", err);
+        alert("Failed to save preferences. Try again.");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Favorites</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-dark text-white">
+  <div class="container mt-5">
+    <h2 class="mb-4">❤️ My Favorites</h2>
+    <div class="mb-4 d-flex justify-content-between">
+      <a href="profile.html" class="btn btn-outline-light btn-sm">← Back to Feed</a>
+      <button id="logoutBtn" class="btn btn-outline-danger btn-sm">🚪 Logout</button>
+    </div>
+
+    <div id="youtubeFavorites" class="mb-5"></div>
+    <div id="newsFavorites" class="mb-5"></div>
+    <div id="spotifyFavorites" class="mb-5"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBD3g5FglsplK08sQD7CZRpytRQIkugQ_8",
+      authDomain: "soundshow-5d474.firebaseapp.com",
+      projectId: "soundshow-5d474",
+      storageBucket: "soundshow-5d474.firebasestorage.app",
+      messagingSenderId: "724444623865",
+      appId: "1:724444623865:web:41cbc14a12fd6a4faac328"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const userId = localStorage.getItem("userId");
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      localStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    async function loadFavorites() {
+      if (!userId) {
+        alert("No user ID found.");
+        return;
+      }
+
+      const snapshot = await db.collection("users").doc(userId).collection("favorites").orderBy("timestamp", "desc").get();
+      const youtube = [];
+      const news = [];
+      const spotify = [];
+
+      snapshot.forEach(doc => {
+        const fav = doc.data();
+        fav.id = doc.id; 
+        if (fav.type === "youtube") youtube.push(fav);
+        else if (fav.type === "news") news.push(fav);
+        else if (fav.type === "spotify") spotify.push(fav);
+      });
+
+      displayYouTube(youtube);
+      displayNews(news);
+      displaySpotify(spotify);
+    }
+
+    async function deleteFavorite(docId) {
+      if (!userId || !docId) return;
+      try {
+        await db.collection("users").doc(userId).collection("favorites").doc(docId).delete();
+        alert("Favorite deleted!");
+        location.reload();
+      } catch (err) {
+        console.error("Failed to delete favorite:", err);
+        alert("Error deleting favorite.");
+      }
+    }
+
+    function displayYouTube(items) {
+      const container = document.getElementById("youtubeFavorites");
+      if (items.length === 0) return;
+      container.innerHTML = "<h4>YouTube</h4>";
+      items.forEach(item => {
+        container.innerHTML += `
+          <div class="mb-4">
+            <h6>${item.content}</h6>
+            <iframe src="https://www.youtube.com/embed/${item.content}" height="200" width="100%" allowfullscreen></iframe>
+            <button class="btn btn-sm btn-outline-danger mt-2" onclick="deleteFavorite('${item.id}')">🗑️ Delete</button>
+          </div>
+        `;
+      });
+    }
+
+    function displayNews(items) {
+      const container = document.getElementById("newsFavorites");
+      if (items.length === 0) return;
+      container.innerHTML = "<h4>News</h4>";
+      items.forEach(article => {
+        container.innerHTML += `
+          <div class="card bg-dark text-white mb-3">
+            <div class="card-body">
+              <h5 class="card-title">${article.content.title}</h5>
+              <p class="card-text">${article.content.description || ""}</p>
+              <a href="${article.content.url}" class="btn btn-light btn-sm" target="_blank">Read more</a>
+              <button class="btn btn-outline-danger btn-sm ms-2 mt-2" onclick="deleteFavorite('${article.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function displaySpotify(items) {
+      const container = document.getElementById("spotifyFavorites");
+      if (items.length === 0) return;
+      container.innerHTML = "<h4>Spotify</h4>";
+      items.forEach(playlist => {
+        container.innerHTML += `
+          <p><strong>${playlist.content}</strong></p>
+          <iframe src="https://open.spotify.com/embed/search/${encodeURIComponent(playlist.content)}" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+          <button class="btn btn-outline-danger btn-sm mt-2" onclick="deleteFavorite('${playlist.id}')">🗑️ Delete</button>
+        `;
+      });
+    }
+
+    loadFavorites();
+  </script>
+</body>
+</html>

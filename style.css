@@ -1,0 +1,96 @@
+body {
+    background-color: #000;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #fff;
+  }
+  
+  .hamburger {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .login-container {
+    background-color: black;
+    border: 2px solid white;
+    padding: 40px 30px;
+    max-width: 400px;
+    margin: 100px auto;
+    text-align: center;
+  }
+  
+  .logo-box {
+    border: 3px solid white;
+    padding: 20px;
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+  
+  form label {
+    display: block;
+    text-align: left;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: none;
+    box-sizing: border-box;
+  }
+  
+  button {
+    width: 100%;
+    background-color: red;
+    color: white;
+    padding: 12px;
+    border: none;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  
+  .options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .options a {
+    color: lightgray;
+    text-decoration: none;
+  }
+  
+  .new-user {
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  
+  .new-user a {
+    color: #00aaff;
+    text-decoration: none;
+  }
+  
+  .new-user a:hover {
+    text-decoration: underline;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  

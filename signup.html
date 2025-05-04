@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoundShow Sign Up</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 60px 20px;
+    }
+
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: black;
+      border: 2px solid white;
+      padding: 30px;
+      border-radius: 10px;
+    }
+
+    .form-control {
+      background-color: #eee;
+      border: none;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn-cancel {
+      background-color: #c0392b;
+      border: none;
+      width: 48%;
+    }
+
+    .btn-signup {
+      background-color: #27ae60;
+      border: none;
+      width: 48%;
+    }
+
+    a {
+      color: #f03;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2 class="fw-bold mb-4">Sign Up</h2>
+    <hr class="border-light">
+
+    <form id="signup-form">
+      <div class="mb-3">
+        <label class="form-label">First Name</label>
+        <input type="text" id="firstName" class="form-control" placeholder="First name" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Last Name</label>
+        <input type="text" id="lastName" class="form-control" placeholder="Last name" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" id="email" class="form-control" placeholder="Email" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" id="username" class="form-control" placeholder="Username" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" class="form-control" placeholder="Password" required>
+      </div>
+
+      <p class="text-light">By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
+
+      <div class="btn-group">
+        <button type="button" class="btn btn-cancel" onclick="window.location.href='index.html'">Cancel</button>
+        <button type="submit" class="btn btn-signup text-white">Sign Up</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Firebase Setup + Signup Logic -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBD3g5FglsplK08sQD7CZRpytRQIkugQ_8",
+      authDomain: "soundshow-5d474.firebaseapp.com",
+      projectId: "soundshow-5d474",
+      storageBucket: "soundshow-5d474.firebasestorage.app",
+      messagingSenderId: "724444623865",
+      appId: "1:724444623865:web:41cbc14a12fd6a4faac328",
+      measurementId: "G-V9L5LL6F66"
+    };
+  
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  
+    document.getElementById("signup-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+  
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+  
+      try {
+        // Check if username already exists
+        const existingUser = await db.collection("users").where("username", "==", username).get();
+        if (!existingUser.empty) {
+          alert("Username already taken. Please choose another.");
+          return;
+        }
+  
+        // Add user to Firestore
+        const docRef = await db.collection("users").add({
+          firstName,
+          lastName,
+          email,
+          username,
+          password
+        });
+  
+        // Store userId and username in localStorage
+        localStorage.setItem("userId", docRef.id);
+        localStorage.setItem("username", username);
+  
+        // Show success popup
+        alert("SUCCESS! Welcome to SOUNDSHOW 🎉");
+  
+        // Redirect to category selection
+        window.location.href = "profile.html";
+  
+      } catch (error) {
+        console.error("Signup error:", error);
+        alert("There was an error signing up. Please try again.");
+      }
+    });
+  </script>
+  
+</body>
+</html>
